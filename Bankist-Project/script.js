@@ -61,6 +61,34 @@ const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
 
+const displayMovement = function (movements) {
+  movements.forEach((mov, i) => {
+    const type = mov > 0 ? "deposit" : "withdrawal";
+    const movementRow = `
+        <div class="movements__row">
+          <div class="movements__type movements__type--${type}">${
+      i + 1
+    } ${type}</div>
+          <div class="movements__value">${mov}</div>
+        </div>`;
+    // add the element (movement row) to the html //
+    containerMovements.insertAdjacentHTML("afterbegin", movementRow);
+  });
+};
+displayMovement(account1.movements);
+
+// compute the users names = make it the first index of each name //
+const createUsersNames = function (accs) {
+  accs.forEach((acc) => {
+    acc.userName = acc.owner
+      .toLowerCase()
+      .split(" ")
+      .map((elm) => elm[0])
+      .join("");
+  });
+};
+createUsersNames(accounts);
+console.log(accounts);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
