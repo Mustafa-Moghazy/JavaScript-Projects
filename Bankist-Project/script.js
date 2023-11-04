@@ -75,32 +75,29 @@ const displayMovement = function (movements) {
     containerMovements.insertAdjacentHTML("afterbegin", movementRow);
   });
 };
-displayMovement(account1.movements);
 
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `${balance}Є`;
 };
-calcDisplayBalance(account1.movements);
 
-const calcDisplaySummary = (movements) => {
-  const income = movements
+const calcDisplaySummary = (account) => {
+  const income = account.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${income}Є`;
 
-  const outcome = movements
+  const outcome = account.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(outcome)}Є`;
 
-  const interest = movements
+  const interest = account.movements
     .filter((mov) => mov > 0)
-    .map((val) => (val * 1.2) / 100)
+    .map((val) => (val * account.interestRate) / 100)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumInterest.textContent = `${interest}Є`;
 };
-calcDisplaySummary(account1.movements);
 // compute the users names = make it the first index of each name //
 const createUsersNames = function (accs) {
   accs.forEach((acc) => {
@@ -113,6 +110,34 @@ const createUsersNames = function (accs) {
 };
 createUsersNames(accounts);
 
+// Implement Login
+// Event Handeler //
+let currentAccount;
+btnLogin.addEventListener("click", function (event) {
+  // prevent form to reload the page when submit //
+  event.preventDefault();
+
+  currentAccount = accounts.find(
+    (acc) => acc.userName === inputLoginUsername.value
+  );
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and Messsage //
+    containerApp.style.opacity = 1;
+    labelWelcome.textContent = `Welcome Back, ${
+      currentAccount.owner.split(" ")[0]
+    }`;
+    // clear input fields //
+    inputLoginUsername.value = inputLoginPin.value = "";
+    // make input lose the focus (remove the curser)//
+    inputLoginPin.blur();
+    // Display Movements //
+    displayMovement(currentAccount.movements);
+    // Display Balance //
+    calcDisplayBalance(currentAccount.movements);
+    // Display Summary //
+    calcDisplaySummary(currentAccount);
+  }
+});
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
