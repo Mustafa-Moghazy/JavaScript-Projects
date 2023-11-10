@@ -171,12 +171,26 @@ btnLogin.addEventListener("click", function (event) {
     }`;
     // create the curent date //
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hours = now.getHours();
-    const mins = now.getMinutes();
-    labelDate.textContent = `${day}/${month}/${year}, ${hours}:${mins}`;
+    // do it with Intl API //
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      weekday: "long",
+    };
+    const locale = navigator.language;
+    labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(
+      now
+    );
+
+    // const day = `${now.getDate()}`.padStart(2, 0);
+    // const month = `${now.getMonth() + 1}`.padStart(2, 0);
+    // const year = now.getFullYear();
+    // const hours = now.getHours();
+    // const mins = now.getMinutes();
+    // labelDate.textContent = `${day}/${month}/${year}, ${hours}:${mins}`;
     // clear input fields //
     inputLoginUsername.value = inputLoginPin.value = "";
     // make input lose the focus (remove the curser)//
