@@ -114,6 +114,7 @@ nav.addEventListener("mouseout", handleHover.bind(1));
 // ==> new way <== //
 // the section we won't the nav to be sticky //
 const header = document.querySelector(".header");
+const navHeight = nav.getBoundingClientRect().height;
 // callBack function to the IOA //
 const stickyNav = function (entries) {
   const [entry] = entries; // == entry = entries[0] //
@@ -127,6 +128,6 @@ const stickyNav = function (entries) {
 const headerObserver = new IntersectionObserver(stickyNav, {
   root: null,
   threshold: 0,
-  rootMargin: "-90px",
+  rootMargin: `-${navHeight}px`,
 });
 headerObserver.observe(header);
