@@ -100,3 +100,33 @@ const handleHover = function (e) {
 nav.addEventListener("mouseover", handleHover.bind(0.5));
 
 nav.addEventListener("mouseout", handleHover.bind(1));
+////////////////////////////////////////////////
+// Sticky navigation //
+// ==> old way <== //
+// const initialCoords = section1.getBoundingClientRect();
+// window.addEventListener("scroll", function (e) {
+//   if (window.scrollY > initialCoords.top) {
+//     nav.classList.add("sticky");
+//   } else {
+//     nav.classList.remove("sticky");
+//   }
+// });
+// ==> new way <== //
+// the section we won't the nav to be sticky //
+const header = document.querySelector(".header");
+// callBack function to the IOA //
+const stickyNav = function (entries) {
+  const [entry] = entries; // == entry = entries[0] //
+  // console.log(entry);
+  if (!entry.isIntersecting) {
+    nav.classList.add("sticky");
+  } else {
+    nav.classList.remove("sticky");
+  }
+};
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: "-90px",
+});
+headerObserver.observe(header);
