@@ -10,54 +10,108 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
-// global variables //
-let map, mapEvent;
 
-// (in case of succes, in case of fail)
-navigator.geolocation.getCurrentPosition(
-  function (postion) {
-    const { latitude } = postion.coords;
-    const { longitude } = postion.coords;
+class Workout {
+  date = new Date();
+  id = (Date.now() + "").slice(-10); // convert to string + cut the last ten number //
+  constructor(coords, distance, duration) {
+    this.coords = coords;
+    this.distance = distance;
+    this.duration = duration;
+  }
+}
 
-    map = L.map("map").setView([latitude, longitude], 11);
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration);
+    this.cadence = cadence;
+
+    this.calcPace();
+  }
+  calcPace() {
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+}
+
+class Cycling extends Workout {
+  constructor(coords, distance, duration, ElevationGain) {
+    super(coords, distance, duration);
+    this.ElevationGain = ElevationGain;
+
+    this.calcSpeed;
+  }
+  calcSpeed() {
+    this.speed = this.distance / (this.duration / 60); //==> km/h <==//
+    return this.speed;
+  }
+}
+
+// a class holding our app functions //
+class App {
+  // private proprties //
+  #map;
+  #mapEvent;
+  constructor() {
+    this._getPosition();
+    form.addEventListener("submit", this._newWorkout.bind(this));
+    inputType.addEventListener("change", this._togelElevationField.bind(this));
+  }
+
+  _getPosition() {
+    // (in case of succes, in case of fail)
+    navigator.geolocation.getCurrentPosition(
+      // this in bind refer to the curent object //
+      this._loadMap.bind(this),
+      function () {
+        alert("couldn't load your loaction");
+      }
+    );
+  }
+
+  _loadMap(position) {
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+
+    this.#map = L.map("map").setView([latitude, longitude], 11);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+    }).addTo(this.#map);
     // handle click on map //
-    map.on("click", function (mapE) {
-      mapEvent = mapE;
-      // render the form //
-      form.classList.remove("hidden");
-      inputDistance.focus();
-    });
-  },
-  function () {
-    alert("couldn't load your loaction");
+    this.#map.on("click", this._showForm.bind(this));
   }
-);
-// handle form sumbition //
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  console.log(mapEvent);
-  const { lat, lng } = mapEvent.latlng;
-  L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(
-      L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: "running-popup",
-      })
-    )
-    .setPopupContent("workout")
-    .openPopup();
-});
-// listen to the input type change (running, cycling)
-inputType.addEventListener("change", function () {
-  inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
-  inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
-});
+
+  _showForm(mapE) {
+    this.#mapEvent = mapE;
+    // render the form //
+    form.classList.remove("hidden");
+    inputDistance.focus();
+  }
+
+  _togelElevationField() {
+    inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
+    inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
+  }
+
+  _newWorkout(e) {
+    e.preventDefault();
+    //console.log(this); // ==> it will refer to the form if you didnit bind the _newWorkout//
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng])
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: "running-popup",
+        })
+      )
+      .setPopupContent("workout")
+      .openPopup();
+  }
+}
+const app = new App();
