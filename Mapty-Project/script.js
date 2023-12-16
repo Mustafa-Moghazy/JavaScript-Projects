@@ -63,7 +63,10 @@ class App {
   #mapEvent;
   #workouts = [];
   constructor() {
+    // get user postions //
     this._getPosition();
+    // load workouts from local storge //
+    this._getLocalStorge();
     form.addEventListener("submit", this._newWorkout.bind(this));
     inputType.addEventListener("change", this._togelElevationField.bind(this));
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
@@ -92,6 +95,10 @@ class App {
     }).addTo(this.#map);
     // handle click on map //
     this.#map.on("click", this._showForm.bind(this));
+    // display workouts marker we get from local storge //
+    this.#workouts.forEach((item) => {
+      this._displayWorkoutMarker(item);
+    });
   }
 
   _showForm(mapE) {
@@ -116,6 +123,7 @@ class App {
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
   }
+  // display workout marker on the map //
   _displayWorkoutMarker(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -133,7 +141,8 @@ class App {
       )
       .openPopup();
   }
-  _diaplayWorkout(workout) {
+  // display the workout on the list //
+  _displayWorkout(workout) {
     const html = `<li class="workout workout--${workout.type}" data-id=${
       workout.id
     }>
@@ -232,9 +241,22 @@ class App {
     // display workout on the map as a marker //
     this._displayWorkoutMarker(workout);
     // display workout on the list (display it on the side bar) //
-    this._diaplayWorkout(workout);
+    this._displayWorkout(workout);
     // hide the form + clear form fields //
     this._hideForm();
+    // set the local storge to all workouts //
+    this._setLocalStorge();
+  }
+  _setLocalStorge() {
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+  }
+  _getLocalStorge() {
+    const data = JSON.parse(localStorage.getItem("workouts"));
+    if (!data) return;
+    this.#workouts = data;
+    this.#workouts.forEach((item) => {
+      this._displayWorkout(item);
+    });
   }
 }
 const app = new App();
