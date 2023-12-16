@@ -66,6 +66,7 @@ class App {
     this._getPosition();
     form.addEventListener("submit", this._newWorkout.bind(this));
     inputType.addEventListener("change", this._togelElevationField.bind(this));
+    containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -171,6 +172,20 @@ class App {
           </div>
         </li>`;
     form.insertAdjacentHTML("afterend", html);
+  }
+  // function moving us to the workout popup on the map //
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest(".workout");
+    if (!workoutEl) return;
+    const curWorkout = this.#workouts.find(
+      (index) => index.id === workoutEl.dataset.id
+    );
+    this.#map.setView(curWorkout.coords, 11, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
   _newWorkout(e) {
     // prevent the form to reload //
